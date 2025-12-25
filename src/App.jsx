@@ -1,7 +1,18 @@
 import "./App.css";
+import { Outlet } from "react-router";
+import Navber from "./components/navber/Navber";
 
 function App() {
-  return <div>hello residential Real land</div>;
+  return (
+    <>
+      <header>
+        <Navber></Navber>
+      </header>
+      <main>
+        <Outlet />
+      </main>
+    </>
+  );
 }
 
 export default App;
