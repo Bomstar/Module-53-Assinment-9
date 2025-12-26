@@ -1,22 +1,55 @@
 import { Link } from "react-router";
 import { authUser } from "../../providers/AuthProvider.jsx";
+import { ToastContainer, toast } from "react-toastify";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
+import { useState } from "react";
 
 function Login(props) {
   const { loginUser } = authUser();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
+
+    // Notification for successful login
+    const loginSuccessNotify = () =>
+      toast.success("Login successful!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+
+    // Notification for login error
+    const loginErrNotify = () =>
+      toast.error("Email or password is incorrect!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
 
     // Call the loginUser function from AuthProvider via context
-    loginUser(email, password).then(res => {
-      console.log("User logged in successfully:", res.user);
-    }).catch(err => {
-      console.error("Login error:", err);
-    });
-  }
+    loginUser(email, password)
+      .then((res) => {
+        loginSuccessNotify();
+      })
+      .catch((err) => {
+        loginErrNotify();
+      });
+  };
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-lg shadow-md">
       <div>
@@ -41,13 +74,24 @@ function Login(props) {
             >
               Password:
             </label>
-            <input
-              className="w-full p-2 border border-gray-300 rounded-md"
-              type="password"
-              id="password"
-              name="password"
-              required
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3  cursor-pointer z-10">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="cursor-pointer"
+                >
+                  {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                </button>
+              </div>
+              <input
+                className="w-full p-2 border border-gray-300 rounded-md pr-10"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                required
+              />
+            </div>
           </div>
           <div className="text-center">
             <button
@@ -56,6 +100,18 @@ function Login(props) {
             >
               Login
             </button>
+            <ToastContainer
+              position="top-center"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
           </div>
         </form>
 
