@@ -75,7 +75,7 @@ export default function Navber() {
           {userData ? (
             <div className="flex gap-4 items-center">
               <div>
-                <div className="w-12 h-12 rounded-full border-2">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2">
                   <img
                     src={userData.photoURL}
                     alt="User profile Photo"

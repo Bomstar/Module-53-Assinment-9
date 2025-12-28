@@ -1,3 +1,9 @@
+import HeroSec from "../components/HeroSec";
+
 export default function Home() {
-  return <div>Home</div>;
+  return (
+    <div>
+      <HeroSec></HeroSec>
+    </div>
+  );
 }
