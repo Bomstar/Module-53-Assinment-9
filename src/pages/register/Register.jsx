@@ -1,7 +1,7 @@
 // Register.jsx
 import { Link } from "react-router"; // react-router-dom ব্যবহার করলাম (standard)
 import { authUser } from "../../providers/AuthProvider.jsx";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { useState } from "react";
 import { z } from "zod";
@@ -30,33 +30,12 @@ function Register() {
     updateUserProfile,
     googleAuthentication,
     githubAuthentication,
-    logoutUser,
+    successNotify,
+    errNotify,
   } = authUser();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-
-  // ---------- Toasts ----------
-  const registerSuccessNotify = () =>
-    toast.success("Registration successful!", {
-      position: "top-center",
-      autoClose: 3000,
-      theme: "colored",
-    });
-
-  const registerErrNotify = (msg = "This email is already used!") =>
-    toast.error(msg, {
-      position: "top-center",
-      autoClose: 3000,
-      theme: "colored",
-    });
-
-  const registerFailedNotify = (msg = "Registration failed!") =>
-    toast.error(msg, {
-      position: "top-center",
-      autoClose: 3000,
-      theme: "colored",
-    });
 
   // ---------- FORM SUBMIT ----------
   const handleOnSubmit = async (e) => {
@@ -89,82 +68,43 @@ function Register() {
     // valid -> clear errors
     setErrors({});
 
-    try {
-      // register user with email & password
-      const res = await registerUser(formData.email, formData.password);
-      // update profile (name, photo)
-      try {
-        await updateUserProfile(formData.name, formData.photo);
-      } catch (profileErr) {
-        // profile update failed — log but continue if auth succeeded
-        console.error("Error updating profile:", profileErr);
-      }
+    // ---------- EMAIL & PASSWORD REGISTRATION ----------
 
-      registerSuccessNotify();
-      // Optionally reset form
-      form.reset();
-    } catch (err) {
-      // Example: Firebase returns error.code === 'auth/email-already-in-use'
-      console.error("Registration error:", err);
-      if (err?.code === "auth/email-already-in-use") {
-        registerErrNotify("This email is already in use.");
-      } else {
-        registerFailedNotify();
-      }
-    }
+    registerUser(formData.email, formData.password)
+      .then(async (res) => {
+        // update profile
+        await updateUserProfile(formData.name, formData.photo);
+        successNotify("Registration Successful");
+      })
+      .catch((err) => {
+        if (err.code === "auth/email-already-in-use") {
+          errNotify("Email already in use. Please login instead.");
+          return;
+        }
+        errNotify("Registration failed! " + err.message);
+      });
   };
 
   // ---------- GOOGLE AUTH ----------
   const handleGoogleAuthentication = async () => {
-    try {
-      const res = await googleAuthentication();
-      const isNewUser = res?.additionalUserInfo?.isNewUser;
-
-      if (!isNewUser) {
-        // existing user attempted to "signup" via Google — sign them out and show error
-        try {
-          await logoutUser();
-        } catch (logoutErr) {
-          console.error("Logout error:", logoutErr);
-        }
-        registerErrNotify(
-          "This Google account is already registered. Please login instead."
-        );
-        return;
-      }
-
-      registerSuccessNotify();
-    } catch (err) {
-      console.error("Google auth error:", err);
-      registerFailedNotify();
-    }
+    googleAuthentication()
+      .then((res) => {
+        successNotify("Google Registration Successful");
+      })
+      .catch((err) => {
+        errNotify("Google Registration failed!");
+      });
   };
 
   // ---------- GITHUB AUTH ----------
   const handleGitHubAuthentication = async () => {
-    try {
-      const res = await githubAuthentication();
-      // use additionalUserInfo for isNewUser consistently
-      const isNewUser = res?.additionalUserInfo?.isNewUser;
-
-      if (!isNewUser) {
-        // existing user attempted to "signup" via GitHub — sign out and show error
-        try {
-          await logoutUser();
-        } catch (logoutErr) {
-          console.error("Logout error:", logoutErr);
-        }
-        registerErrNotify(
-          "This GitHub account is already registered. Please login instead."
-        );
-        return;
-      }
-
-      registerSuccessNotify();
-    } catch (err) {
-      console.error("GitHub auth error:", err);
-      registerFailedNotify();
-    }
+    githubAuthentication()
+      .then((res) => {
+        successNotify("GitHub Registration Successful");
+      })
+      .catch((err) => {
+        errNotify("GitHub Registration failed!");
+      });
   };
 
   return (

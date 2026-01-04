@@ -1,39 +1,22 @@
 import { Link } from "react-router";
 import { authUser } from "../../providers/AuthProvider.jsx";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { useState } from "react";
 
 function Login(props) {
-  const { loginUser, googleAuthentication, githubAuthentication, logoutUser } =
-    authUser();
+  const {
+    loginUser,
+    googleAuthentication,
+    githubAuthentication,
+    successNotify,
+    errNotify,
+  } = authUser();
   const [showPassword, setShowPassword] = useState(false);
 
   // Notification for successful login
-  const loginSuccessNotify = () =>
-    toast.success("Login successful!", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    });
 
   // Notification for login error
-  const loginErrNotify = () =>
-    toast.error("Email or password is incorrect!", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    });
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -45,39 +28,31 @@ function Login(props) {
     // Call the loginUser function from AuthProvider via context
     loginUser(email, password)
       .then((res) => {
-        loginSuccessNotify();
+        successNotify("Email and Password Login Success");
       })
       .catch((err) => {
-        loginErrNotify();
+        errNotify("Email Or password Wrong");
       });
   };
 
   // Google and GitHub authentication handlers can be added here
   const handleGoogleAuthentication = () => {
     googleAuthentication()
-      .then(async (res) => {
-        const isNewUser = res?.uid;
-        console.log("isNewUser:", isNewUser);
-        if (isNewUser) {
-          // নতুন user login করতে পারবে না
-          await logoutUser();
-          loginErrNotify();
-          return;
-        }
-        loginSuccessNotify();
+      .then((res) => {
+        successNotify("Google Login Success");
       })
       .catch((err) => {
-        loginErrNotify();
+        errNotify("Google Login Error! Please check your internet!!");
       });
   };
 
   const handleGitHubAuthentication = () => {
     githubAuthentication()
       .then((res) => {
-        loginSuccessNotify();
+        successNotify("GitHub Login Success");
       })
       .catch((err) => {
-        loginErrNotify();
+        errNotify("GitHub Login Error! Please check your internet!!");
       });
   };
 
@@ -126,7 +101,7 @@ function Login(props) {
           </div>
           <div className="text-center">
             <button
-              className="transform duration-200 bg-primary text-white px-16 font-semibold py-2 rounded-md hover:bg-blue-900"
+              className="transform duration-200 bg-primary  px-16 text-primary-contrast font-semibold py-2 rounded-md hover:bg-blue-900"
               type="submit"
             >
               Login

@@ -10,6 +10,7 @@ import {
   GithubAuthProvider,
 } from "firebase/auth";
 import auth from "../firebeas/firebase.config";
+import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 
 const AuthContext = createContext();
@@ -37,8 +38,6 @@ function AuthProvider({ children }) {
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
 
-  console.log("GitHub Provider:", googleProvider);
-
   const googleAuthentication = () => {
     return signInWithPopup(auth, googleProvider);
   };
@@ -63,6 +62,36 @@ function AuthProvider({ children }) {
     });
   }, []);
 
+  /*----------------------- Toster Notify -----------------------*/
+
+  // Success Msg
+
+  const successNotify = (popupMsg) =>
+    toast.success(`${popupMsg}`, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+
+  // Error Msg
+
+  const errNotify = (popupMsg) =>
+    toast.error(`${popupMsg}`, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+
   const value = {
     registerUser,
     loginUser,
@@ -71,6 +100,8 @@ function AuthProvider({ children }) {
     userData,
     googleAuthentication,
     githubAuthentication,
+    successNotify,
+    errNotify,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

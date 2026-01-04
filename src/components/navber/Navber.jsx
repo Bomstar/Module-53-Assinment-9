@@ -67,7 +67,7 @@ export default function Navber() {
               className="transform duration-200 border-b-2 border-white hover:text-primary hover:border-primary hover:border-b-2"
               to="/about-us"
             >
-              About Us
+              About
             </Link>
           </ul>
         </div>
